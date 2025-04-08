@@ -41,7 +41,7 @@ export default function ProductGrid() {
 
   useEffect(() => {
     async function fetchSarees() {
-      const res = await fetch('http://localhost:3001/api/sarees'); // adjust for deployment later
+      const res = await fetch('/api/sarees'); // ✅ Now hits your serverless API route
       const data = await res.json();
       setProducts(data);
     }
