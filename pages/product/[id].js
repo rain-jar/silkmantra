@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
@@ -11,6 +11,9 @@ export default function ProductPage() {
   const [product, setProduct] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1); // 1 → 1.5 → 2 → back to 1
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStart = useRef({ x: 0, y: 0 });
 
 
   useEffect(() => {
@@ -52,7 +55,7 @@ export default function ProductPage() {
             <p className="text-body text-sm leading-relaxed">
                 Please expect 5% - 10% colour variations due to individual phone displays.
             </p>
-            <button className="w-full bg-highlight text-white px-6 py-3 rounded-full font-semibold hover:bg-brand transition-colors duration-300">
+            <button className="w-full bg-gradient-to-r from-brand via-accent to-brand text-white px-6 py-3 rounded-full font-semibold hover:bg-brand transition-colors duration-300">
             Add to Cart
             </button>
         </div>
@@ -68,22 +71,35 @@ export default function ProductPage() {
                   
             >
                 <div
-                className="relative flex items-center justify-center w-auto h-auto max-w-[90vw] max-h-[90vh] mx-auto"
-                onClick={(e) => {
-                    e.stopPropagation();
-                    setZoomLevel((prev) => (prev >= 2 ? 1 : prev + 0.5));
-                }}
+                    className="relative flex items-center justify-center w-auto h-auto max-w-[90vw] max-h-[90vh] mx-auto"
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setZoomLevel((prev) => (prev >= 2 ? 1 : prev + 0.5));
+                    }}
+                    onMouseDown={(e) => {
+                        if (zoomLevel === 1) return;
+                        setIsDragging(true);
+                        dragStart.current = { x: e.clientX - offset.x, y: e.clientY - offset.y };
+                    }}
+                    onMouseMove={(e) => {
+                        if (!isDragging || zoomLevel === 1) return;
+                        const x = e.clientX - dragStart.current.x;
+                        const y = e.clientY - dragStart.current.y;
+                        setOffset({ x, y });
+                    }}
+                    onMouseUp={() => setIsDragging(false)}
+                    onMouseLeave={() => setIsDragging(false)}
                 >
                     <Image
                         src={product.image_url}
                         alt={product.name}
                         width={800} // You can tweak this
                         height={1000}
-                        className={`transition-transform duration-300 ${zoomLevel > 1 ? 'cursor-zoom-out' : 'cursor-zoom-in'}`}
+                        className={`transition-transform duration-300 ${zoomLevel > 1 ? 'cursor-move' : 'cursor-zoom-in'}`}
                         style={{
-                        transform: `scale(${zoomLevel})`,
-                        transformOrigin: 'center',
-                        }}
+                            transform: `scale(${zoomLevel}) translate(${offset.x}px, ${offset.y}px)`,
+                            transformOrigin: 'center',
+                          }}
                     />
                 </div>
             </div>

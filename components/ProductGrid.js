@@ -51,7 +51,7 @@ export default function ProductGrid() {
 
   return (
     <section className="px-4 md:px-8 py-10">
-      <h2 className="text-2xl font-semibold text-brand mb-6">Just Arrived</h2>
+      <h2 className="text-2xl font-semibold text-brand mb-6">Curated Collection</h2>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {products.map((product) => (
           <Link href={`/product/${product.id}`} key={product.id}>
