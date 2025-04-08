@@ -16,9 +16,9 @@ export default function ProductPage() {
   useEffect(() => {
     if (!id) return;
     async function fetchProduct() {
-      const res = await fetch(`http://localhost:3001/api/sarees/${id}`);
-      const data = await res.json();
-      setProduct(data);
+        const res = await fetch(`/api/sarees/${id}`);
+        const data = await res.json();
+        setProduct(data);
     }
     fetchProduct();
   }, [id]);
