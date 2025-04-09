@@ -41,7 +41,7 @@ export default function AboutPage() {
         {/* Right: Image */}
         <div className="w-full md:w-1/3 h-auto relative min-h-[300px]">
           <Image
-            src="/about-right.png" // 👉 Replace with your image
+            src="/about-me.png" // 👉 Replace with your image
             alt="Loom or Artisan"
             layout="fill"
             objectFit="cover"
