@@ -3,6 +3,8 @@ import { useEffect, useState, useRef } from 'react';
 import Image from 'next/image';
 import Header from '../../components/Header';
 import Footer from '../../components/Footer';
+import { useCartStore } from '../../stores/cartStore';
+
 
 export default function ProductPage() {
   const router = useRouter();
@@ -17,6 +19,7 @@ export default function ProductPage() {
   const isDragging = useRef(false);
   const hasDragged = useRef(false);
 
+  const addToCart = useCartStore((state) => state.addToCart);
 
 
   useEffect(() => {
@@ -92,7 +95,13 @@ export default function ProductPage() {
             <p className="text-body text-sm leading-relaxed">
                 Please expect 5% - 10% colour variations due to individual phone displays.
             </p>
-            <button className="w-full bg-gradient-to-r from-brand via-accent to-brand text-white px-6 py-3 rounded-full font-semibold hover:bg-brand transition-colors duration-300">
+            <button 
+              onClick={() => {
+                addToCart(product);
+                console.log(useCartStore.getState().cart);
+              }}
+              className="w-full bg-gradient-to-r from-brand via-accent to-brand text-white px-6 py-3 rounded-full font-semibold hover:bg-brand transition-colors duration-300"
+            >
             Add to Cart
             </button>
         </div>
