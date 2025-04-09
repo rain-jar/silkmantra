@@ -7,11 +7,11 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 const images = [
-  { src: '/Hero1.png', href: '/product/1' },
-  { src: '/Hero2.png', href: '/product/2' },
-  { src: '/Hero3.png', href: '/product/3' },
-  { src: '/Hero4.png', href: '/product/4' },
-  { src: '/Hero5.png', href: '/product/5' },
+  { src: '/Hero1.png', href: '/product/6' },
+  { src: '/Hero2.png', href: '/product/5' },
+  { src: '/Hero3.png', href: '/product/8' },
+  { src: '/Hero4.png', href: '/product/7' },
+  { src: '/Hero5.png', href: '/product/4' },
 ];
 
 export default function HeroCarousel() {
