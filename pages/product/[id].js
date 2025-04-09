@@ -11,9 +11,12 @@ export default function ProductPage() {
   const [product, setProduct] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [zoomLevel, setZoomLevel] = useState(1); // 1 → 1.5 → 2 → back to 1
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
+  const offset = useRef({ x: 0, y: 0 });
   const dragStart = useRef({ x: 0, y: 0 });
+  const imgRef = useRef(null);
+  const isDragging = useRef(false);
+  const hasDragged = useRef(false);
+
 
 
   useEffect(() => {
@@ -25,6 +28,40 @@ export default function ProductPage() {
     }
     fetchProduct();
   }, [id]);
+
+  function handlePointerDown(e) {
+    if (zoomLevel === 1) return;
+    isDragging.current = true;
+    dragStart.current = {
+      x: e.clientX - offset.current.x,
+      y: e.clientY - offset.current.y,
+    };
+    if (imgRef.current) {
+        imgRef.current.setPointerCapture(e.pointerId);
+    }
+  }
+  
+  function handlePointerMove(e) {
+    if (!isDragging.current || zoomLevel === 1) return;
+    offset.current = {
+      x: e.clientX - dragStart.current.x,
+      y: e.clientY - dragStart.current.y,
+    };
+    hasDragged.current = true;
+
+    if (imgRef.current) {
+      imgRef.current.style.transform = `scale(${zoomLevel}) translate(${offset.current.x}px, ${offset.current.y}px)`;
+    }
+  }
+  
+  function handlePointerUp(e) {
+    hasDragged.current = false;
+    isDragging.current = false;
+    if (imgRef.current) {
+        imgRef.current.releasePointerCapture(e.pointerId);
+    }
+  }
+
 
   if (!product) return <div className="p-8 text-brand">Loading...</div>;
 
@@ -71,35 +108,36 @@ export default function ProductPage() {
                   
             >
                 <div
-                    className="relative flex items-center justify-center w-auto h-auto max-w-[90vw] max-h-[90vh] mx-auto"
+                    className="relative max-w-[90vw] max-h-[90vh] overflow-hidden select-none"
                     onClick={(e) => {
                         e.stopPropagation();
-                        setZoomLevel((prev) => (prev >= 2 ? 1 : prev + 0.5));
-                    }}
-                    onMouseDown={(e) => {
-                        if (zoomLevel === 1) return;
-                        setIsDragging(true);
-                        dragStart.current = { x: e.clientX - offset.x, y: e.clientY - offset.y };
-                    }}
-                    onMouseMove={(e) => {
-                        if (!isDragging || zoomLevel === 1) return;
-                        const x = e.clientX - dragStart.current.x;
-                        const y = e.clientY - dragStart.current.y;
-                        setOffset({ x, y });
-                    }}
-                    onMouseUp={() => setIsDragging(false)}
-                    onMouseLeave={() => setIsDragging(false)}
+                        if (hasDragged.current) return; // ✅ Skip zoom toggle if dragged
+                        setZoomLevel((prev) => {
+                          const next = prev >= 2 ? 1 : prev + 0.5;
+                          offset.current = { x: 0, y: 0 };
+                          if (imgRef.current) {
+                            imgRef.current.style.transform = `scale(${next}) translate(0px, 0px)`;
+                          }
+                          return next;
+                        });
+                      }}
                 >
-                    <Image
+                    <img
+                        ref={imgRef}
                         src={product.image_url}
                         alt={product.name}
-                        width={800} // You can tweak this
+                        width={800}
                         height={1000}
-                        className={`transition-transform duration-300 ${zoomLevel > 1 ? 'cursor-move' : 'cursor-zoom-in'}`}
+                        className={`transition-transform duration-300 ${
+                            zoomLevel > 1 ? 'cursor-grab active:cursor-grabbing' : 'cursor-zoom-in'
+                        }`}
+                        onPointerDown={handlePointerDown}
+                        onPointerMove={handlePointerMove}
+                        onPointerUp={handlePointerUp}
                         style={{
-                            transform: `scale(${zoomLevel}) translate(${offset.x}px, ${offset.y}px)`,
+                            transform: `scale(${zoomLevel}) translate(${offset.current.x}px, ${offset.current.y}px)`,
                             transformOrigin: 'center',
-                          }}
+                        }}
                     />
                 </div>
             </div>
