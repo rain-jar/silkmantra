@@ -48,6 +48,7 @@ export default function ProductGrid() {
     fetchSarees();
   }, []);
 
+  
 
   return (
     <section className="px-4 md:px-8 py-10">
